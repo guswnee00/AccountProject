@@ -3,8 +3,8 @@ package com.zerobase.account.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zerobase.account.dto.AccountDto;
 import com.zerobase.account.dto.CreateAccount;
+import com.zerobase.account.dto.DeleteAccount;
 import com.zerobase.account.service.AccountService;
-import com.zerobase.account.service.RedisTestService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -28,9 +28,6 @@ class AccountControllerTest {
     @MockBean
     private AccountService accountService;
 
-    @MockBean
-    private RedisTestService redisTestService;
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -49,7 +46,7 @@ class AccountControllerTest {
                         .build());
         //when
         //then
-        mockMvc.perform(post("account")
+        mockMvc.perform(post("/account")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(
                         new CreateAccount.Request(3333L, 1111L)
@@ -60,4 +57,30 @@ class AccountControllerTest {
                 .andDo(print());
 
     }
+
+    @Test
+    void successDeleteAccount() throws Exception {
+        //given
+        given(accountService.deleteAccount(anyLong(), anyString()))
+                .willReturn(AccountDto.builder()
+                        .userId(1L)
+                        .accountNumber("1234567890")
+                        .registeredAt(LocalDateTime.now())
+                        .unRegisteredAt(LocalDateTime.now())
+                        .build());
+        //when
+        //then
+        mockMvc.perform(delete("/account")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                new DeleteAccount.Request(3333L, "0987654321")
+                        )))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId").value(1))
+                .andExpect(jsonPath("$.accountNumber").value("1234567890"))
+                .andDo(print());
+
+    }
+
+
 }

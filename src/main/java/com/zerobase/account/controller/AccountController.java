@@ -1,13 +1,17 @@
 package com.zerobase.account.controller;
 
 import com.zerobase.account.domain.Account;
-import com.zerobase.account.dto.AccountDto;
+import com.zerobase.account.dto.AccountInfo;
 import com.zerobase.account.dto.CreateAccount;
+import com.zerobase.account.dto.DeleteAccount;
 import com.zerobase.account.service.AccountService;
 import com.zerobase.account.service.RedisTestService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,10 +23,6 @@ public class AccountController {
     public CreateAccount.Response createAccount(
             @RequestBody @Valid CreateAccount.Request request
     ) {
-        AccountDto accountDto = accountService.createAccount(
-                request.getUserId(),
-                request.getInitialBalance()
-        );
         return CreateAccount.Response.from(
                 accountService.createAccount(
                         request.getUserId(),
@@ -30,6 +30,32 @@ public class AccountController {
                 )
         );
     }
+
+    @DeleteMapping("/account")
+    public DeleteAccount.Response deleteAccount(
+            @RequestBody @Valid DeleteAccount.Request request
+    ) {
+        return DeleteAccount.Response.from(
+                accountService.deleteAccount(
+                        request.getUserId(),
+                        request.getAccountNumber()
+                )
+        );
+    }
+
+    @GetMapping("/account")
+    public List<AccountInfo> getAccountsByUserId(
+            @RequestParam("user_id") Long userId
+    ) {
+        return accountService.getAccountsByUserId(userId)
+                .stream().map(accountDto -> AccountInfo.builder()
+                        .accountNumber(accountDto.getAccountNumber())
+                        .balance(accountDto.getBalance())
+                        .build())
+                .collect(Collectors.toList());
+
+    }
+
 
     @GetMapping("/get-lock")
     public String getLock() {
