@@ -5,9 +5,11 @@ import com.zerobase.account.domain.Account;
 import com.zerobase.account.dto.AccountDto;
 import com.zerobase.account.dto.CreateAccount;
 import com.zerobase.account.dto.DeleteAccount;
+import com.zerobase.account.exception.AccountException;
 import com.zerobase.account.service.AccountService;
 import com.zerobase.account.service.RedisTestService;
 import com.zerobase.account.type.AccountStatus;
+import com.zerobase.account.type.ErrorCode;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -135,4 +137,18 @@ class AccountControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void failGetAccount() throws Exception {
+        //given
+        given(accountService.getAccount(anyLong()))
+                .willThrow(new AccountException(ErrorCode.ACCOUNT_NOT_FOUND));
+
+        //when
+        //then
+        mockMvc.perform(get("/account/876"))
+                .andDo(print())
+                .andExpect(jsonPath("$.errorCode").value("ACCOUNT_NOT_FOUND"))
+                .andExpect(jsonPath("$.errorMessage").value("계좌가 없습니다."))
+                .andExpect(status().isOk());
+    }
 }
