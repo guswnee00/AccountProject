@@ -21,6 +21,8 @@ public enum ErrorCode {
     INVALID_REQUEST("잘못된 요청입니다."),
 
     INTERNAL_SERVER_ERROR("내부 서버 오류가 발생했습니다."),
+
+    ACCOUNT_TRANSACTION_LOCK("해당 계좌는 사용중입니다."),
     ;
 
     private final String description;

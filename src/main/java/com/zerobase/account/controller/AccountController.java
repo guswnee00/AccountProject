@@ -5,7 +5,6 @@ import com.zerobase.account.dto.AccountInfo;
 import com.zerobase.account.dto.CreateAccount;
 import com.zerobase.account.dto.DeleteAccount;
 import com.zerobase.account.service.AccountService;
-import com.zerobase.account.service.RedisTestService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +16,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AccountController {
     private final AccountService accountService;
-    private final RedisTestService redisTestService;
 
     @PostMapping("/account")
     public CreateAccount.Response createAccount(
@@ -54,12 +52,6 @@ public class AccountController {
                         .build())
                 .collect(Collectors.toList());
 
-    }
-
-
-    @GetMapping("/get-lock")
-    public String getLock() {
-        return redisTestService.getLock();
     }
 
     @GetMapping("/account/{id}")
