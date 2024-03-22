@@ -23,6 +23,8 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR("내부 서버 오류가 발생했습니다."),
 
     ACCOUNT_TRANSACTION_LOCK("해당 계좌는 사용중입니다."),
+
+    OCCUPIED_ACCOUNT_NUMBER("이미 사용중인 계좌번호입니다."),
     ;
 
     private final String description;

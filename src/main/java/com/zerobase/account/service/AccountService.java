@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import static com.zerobase.account.type.AccountStatus.IN_USE;
@@ -37,9 +38,7 @@ public class AccountService {
 
         validateCreateAccount(accountUser);
 
-        String newAccountNumber = accountRepository.findFirstByOrderByIdDesc()
-                .map(account -> (Integer.parseInt(account.getAccountNumber())) + 1 + "")
-                .orElse("1000000000");   // 랜덤 숫자 생성으로 바꾸기
+        String newAccountNumber = getNewAccountNumber();   // 10자리 랜덤 숫자 생성
 
         return AccountDto.fromEntity(
                 accountRepository.save(
@@ -51,6 +50,24 @@ public class AccountService {
                         .registeredAt(LocalDateTime.now())
                         .build())
         );
+    }
+
+    private String getNewAccountNumber() {
+        String accountNumber = accountRepository.findFirstByOrderByIdDesc()
+                .map(account -> (Integer.parseInt(account.getAccountNumber())) + 1 + "")
+                .orElse(makeAccountNumber());
+
+        if (accountRepository.findByAccountNumber(accountNumber).isPresent()) {
+            throw new AccountException(OCCUPIED_ACCOUNT_NUMBER);
+        }
+        return accountNumber;
+    }
+
+
+    private String makeAccountNumber() {   // 랜덤 숫자 생성해서 10자리 맞추기
+        Random random = new Random();
+        Long randomNumber = Math.abs(random.nextLong() % 10000000000L);
+        return String.format("%010d", randomNumber);
     }
 
     private void validateCreateAccount(AccountUser accountUser) {
