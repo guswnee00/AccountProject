@@ -10,12 +10,17 @@ import redis.embedded.RedisServer;
 public class LocalRedisConfig {
     @Value("${spring.data.redis.port}")
     private int redisPort;
+
     private RedisServer redisServer;
 
     @PostConstruct
     public void startRedis() {
         redisServer = new RedisServer(redisPort);
-        redisServer.start();
+        try {
+            redisServer.start();
+        }catch (Exception e) {
+            System.out.println(e);
+        }
     }
 
     @PreDestroy
